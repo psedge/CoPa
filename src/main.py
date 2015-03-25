@@ -1,7 +1,7 @@
 import sys
 
 from gui import Gui
-from debug import Debug
+from src.debug import Debug
 from socket_handler import SocketHandler
 from encr import Encryption
 from hash import Hash

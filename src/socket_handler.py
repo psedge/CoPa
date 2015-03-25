@@ -1,8 +1,6 @@
-import sys
-import os
 import socket
 
-from imcp import IMCP
+from src.imcp import IMCP
 
 
 class SocketHandler:
