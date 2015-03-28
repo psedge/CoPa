@@ -1,4 +1,5 @@
 import socket
+import sys
 
 from src.imcp import IMCP
 
@@ -21,9 +22,11 @@ class SocketHandler:
 
     def post_connection(self, message, addr):
         while self.wait_for_confirmation(hash) == False:
-            packet = IMCP
+            packet = IMCP()
             packet.message = message
 
+            print(packet.prepare())
+            sys.exit()
             self._socket.send(packet.prepare())
 
     def wait_for_confirmation(self, hash):

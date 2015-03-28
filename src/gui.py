@@ -15,7 +15,7 @@ class Gui:
 
     def __init__(self, log, callback, _action_callback):
         self._dbg = log
-        self._dbg.write(self._dbg, 'Starting Tk window', log.DEBUG)
+        self._dbg.write('Starting Tk window', log.DEBUG)
 
         # Register callback for on send / receive message
         if callable(callback) and callable(_action_callback):
@@ -90,7 +90,7 @@ class Gui:
     def send(self, message):
         self.insert_message(message)
 
-        self._dbg.write(self._dbg, message, self._dbg.DEBUG)
+        self._dbg.write(message, self._dbg.DEBUG)
 
         self._callback({"message": message, "method": "OUT", "args": {"time": time.time()}})
 

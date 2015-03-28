@@ -16,7 +16,7 @@ class CoPa:
 
 
     def __init__(self):
-        self.log = Debug
+        self.log = Debug()
         callback = getattr(self, 'send_message')
         config_callback = getattr(self, 'do_action')
         self._wait_for_connections(callback)
@@ -25,12 +25,12 @@ class CoPa:
     def _wait_for_connections(self, callback):
         callback = getattr(self, 'new_connection')
         self._socket = SocketHandler(self.log, lambda x: callback(x))
-        self.log.write(self.log, 'Waiting for connections', 'DEBUG')
+        self.log.write('Waiting for connections', 'DEBUG')
 
     def do_action(self, action, params):
         if action == 'connect':
             self._config['addr'] = params['addr']
-            self.log.write(self.log, 'Connecting to ' + params['addr'], 'DEBUG')
+            self.log.write('Connecting to ' + params['addr'], 'DEBUG')
 
     def new_connection(self, data, addr):
         message = Encryption.decrypt_data(data)
