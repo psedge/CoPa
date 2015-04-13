@@ -5,7 +5,7 @@ from src.debug import Debug
 from socket_handler import SocketHandler
 from encr import Encryption
 from hash import Hash
-
+from pack import Packer
 
 class CoPa:
     log = None
@@ -14,6 +14,7 @@ class CoPa:
     _socket = None
     _config = {"addr": None}
 
+    PACKET_LENGTH = 64
 
     def __init__(self):
         self.log = Debug()
@@ -45,10 +46,12 @@ class CoPa:
 
         self._messages.append(data)
 
-        crypto = Encryption(data)
-        encrypted_data = crypto.encrypt_data()
+        for part in Packer.split(message['message'], self.PACKET_LENGTH):
 
-        self._socket.post_connection(encrypted_data, self._config['addr'])
+            crypto = Encryption(part)
+            encrypted_data = crypto.encrypt_data()
+
+            self._socket.post_connection(encrypted_data, self._config['addr'])
 
 """
 This is the summer of our discontent made glorious by example messages
