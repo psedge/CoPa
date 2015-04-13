@@ -22,7 +22,7 @@ class IMCP:
 
         # Header is type (8), code (8), checksum (16), id (16), sequence (16)
         header = str(struct.pack('bbHHh', self.ICMP_ECHO_REQUEST, 0, 0, packet_id, 1))
-        data = str(192 * 'Q')
+        data = str(self.message)
 
         # Calculate the checksum on the data and the dummy header.
         my_checksum = self.checksum(header + data)
