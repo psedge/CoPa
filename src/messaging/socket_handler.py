@@ -1,8 +1,6 @@
 import sys
 from socket import socket, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOL_IP, IP_HDRINCL
 
-from messaging.imcp import IMCP
-
 
 class SocketHandler:
     _socket = None

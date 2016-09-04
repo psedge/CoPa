@@ -17,15 +17,15 @@ class Encryption:
         self.__tweak = False
 
     def _check_self(self):
-        if self.__keys == False:
+        if not self.__keys:
             with open("/dev/urandom", 'rb') as file:
                 self.__keys = file.read(64)
 
-        if self.__tweak == False:
+        if not self.__tweak:
             with open("/dev/urandom", 'rb') as file:
                 self.__tweak = file.read(16)
 
-        if self._data == None:
+        if not self._data:
             raise Exception('No data')
 
         return True
@@ -37,7 +37,7 @@ class Encryption:
         return self._data
 
     def encrypt_data(self):
-        if (self._check_self()):
+        if self._check_self():
             message = self._data
             self._data = self._encrypt(message)
 
