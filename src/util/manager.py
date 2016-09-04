@@ -1,4 +1,5 @@
-from messaging.fomats import Message
+from messaging.formatting import Message
+from messaging.transport import IMCP
 from util.selector import Selector
 
 
@@ -26,7 +27,10 @@ class Manager:
             return self.put_to_gui(command.get_output())
 
         message = Message(input)
-        return self.put_to_gui("(You): " + str(message))
+        if message.send(IMCP):
+            return self.put_to_gui("(You): " + str(message))
+
+        return self.put_to_gui("(failed): " + str(message))
 
     def put_to_gui(self, string):
         self.gui.put(string)

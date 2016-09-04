@@ -1,31 +1,56 @@
-import socket
-import struct
 import random
+import struct
+import sys
+from socket import socket as sock, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOL_IP, IP_HDRINCL, socket
+
+from util.exceptions import TransportMethodException
 
 
-class Message(object):
+class Handler:
 
-    def __init__(self, message='', args={}):
+    def __init__(self, transport_class):
+        self.transport = transport_class
+
+    # def receive_connection(self):
+    #     while True:
+    #         data, addr = self.transport._socket.recvfrom(1508)
+    #         self.callback(data, addr)
+    #         Debug.write("Packet from %r: %r" % (addr, data))
+
+    def send(self, part, addr):
+        packet = self.transport(part)
+        print(packet.make_packet())
+        sys.exit()
+
+
+class TransportMethod:
+
+    def __init__(self, message):
         self.message = message
 
-    def send(self):
-        packer = Packer(size=64)
-        packer.split(str(self))
+        if not getattr(self, 'make_packet'):
+            raise TransportMethodException("TransportMethod does not implement a make_packet() function.")
 
-    def __str__(self):
-        return str(self.message)
 
-class IMCP:
+class IMCP(TransportMethod):
     """
     Most of this is derived, nicked, nabbed, stolen, taken, borrowed, and just outright-ripped-off from @pklaus, from his original implementation of ping.c in python.
     If you ever read this, thank you for saving me many hours of my life.
     """
 
     ICMP_ECHO_REQUEST = 8
-    ICMP_CODE = socket.getprotobyname('icmp')
 
-    def __init__(self, message=''):
-        self.message = message
+    _socket = None
+
+    def __init__(self, message):
+        super(IMCP, self).__init__(message)
+
+        self._socket = sock(
+            family=AF_INET,
+            type=SOCK_RAW,
+            proto=IPPROTO_ICMP)
+
+        self._socket.setsockopt(SOL_IP, IP_HDRINCL, 1)
 
     def make_packet(self):
         packet_id = int((id(1) * random.random()) % 65535)
@@ -53,12 +78,12 @@ class IMCP:
         while count < count_to:
             this_val = ord(source_string[count + 1]) * 256 + ord(source_string[count])
             sum += this_val
-            sum &= 0xffffffff # Necessary?
+            sum &= 0xffffffff  # Necessary?
             count += 2
 
         if count_to < len(source_string):
             sum += ord(source_string[len(source_string) - 1])
-            sum = sum & 0xffffffff # Necessary?
+            sum = sum & 0xffffffff  # Necessary?
 
         sum = (sum >> 16) + (sum & 0xffff)
         sum = sum + (sum >> 16)
@@ -67,42 +92,3 @@ class IMCP:
         # Swap bytes. Bugger me if I know why.
         answer = answer >> 8 | (answer << 8 & 0xff00)
         return answer
-
-
-class Packer:
-    """
-    Split the message into a number of packets.
-    """
-    def __init__(self, size=64):
-        if not isinstance(size, int):
-            raise Exception('byte length not integeric')
-        self.byte_size = size
-
-    @staticmethod
-    def pad(data, length):
-        while len(data) < length:
-            data.extend(b' ')
-        return data
-
-    def split(self, data):
-        """
-        Should be interesting to see how far we get with this
-
-        :param data:
-        :return:
-        """
-        parts = []
-        current_part = bytearray()
-
-        for i in range(0, len(bytes(data.encode())) - 1):
-            current_part.extend(data[i].encode())
-            if len(bytes(current_part)) == self.byte_size:
-                parts.append(current_part)
-                current_part = bytearray()
-
-        if len(bytes(current_part)) < self.byte_size:
-            self.pad(current_part, self.byte_size)
-
-            parts.append(current_part)
-
-        return parts
