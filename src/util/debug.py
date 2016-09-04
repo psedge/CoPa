@@ -1,5 +1,3 @@
-import os
-import sys
 import time
 
 
@@ -17,7 +15,7 @@ class Debug:
         self._messages['print'].append(message)
         print(message)
 
-    def log(self, message, level = 'DEBUG'):
+    def log(self, message, level='DEBUG'):
         self._messages['log'].append(message)
         self._write_to_log(message)
 

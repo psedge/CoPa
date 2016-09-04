@@ -1,14 +1,13 @@
-import sys
 import socket
 import struct
 import random
 
 
-"""
-Most of this is derived, nicked, nabbed, stolen, taken, borrowed, and just outright-ripped-off from @pklaus, from his original implementation of ping.c in python.
-If you ever read this, thank you for saving me many hours of my life.
-"""
 class IMCP:
+    """
+    Most of this is derived, nicked, nabbed, stolen, taken, borrowed, and just outright-ripped-off from @pklaus, from his original implementation of ping.c in python.
+    If you ever read this, thank you for saving me many hours of my life.
+    """
 
     message = ''
     ICMP_ECHO_REQUEST = 8

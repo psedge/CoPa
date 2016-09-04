@@ -1,10 +1,8 @@
-import sys
 import tkinter as tk
-import os
 import time
 
 
-class Gui:
+class Window:
     _dbg = None
     _window = None
     _entry = None
@@ -13,14 +11,14 @@ class Gui:
     _action_callback = None
     _messages = None
 
-    def __init__(self, log, callback, _action_callback):
+    def __init__(self, log, callback, action_callback):
         self._dbg = log
         self._dbg.write('Starting Tk window', log.DEBUG)
 
         # Register callback for on send / receive message
-        if callable(callback) and callable(_action_callback):
+        if callable(callback) and callable(action_callback):
             self._callback = callback
-            self._action_callback = _action_callback
+            self._action_callback = action_callback
         else:
             raise Exception('Callback isn\'t callable.')
 
@@ -58,24 +56,24 @@ class Gui:
         first_word = message.split(' ')[0]
         self._entry.delete(0, tk.END)
 
-        if message == '?':
+        if message == '/help':
             help_message = "CoPa - The (Co)py(Pa)ste Messaging Application. \nv0.1\n\n"
-            help_message += "?              - Help \n"
-            help_message += "connect {host} - Connect to a known IP \n"
-            help_message += "recon          - Search the network for hosts \n"
-            help_message += "clear          - Clear the current panel (doesn't delete log) \n"
-            help_message += "\n";
-            help_message += "about          - About CoPa \n"
-            help_message += "exit           - Exit CoPa \n"
+            help_message += "/help              - Help \n"
+            help_message += "/connect {host} - Connect to a known IP \n"
+            help_message += "/search         - Search the network for hosts \n"
+            help_message += "/clear          - Clear the current panel (doesn't delete log) \n"
+            help_message += "\n"
+            help_message += "/about          - About CoPa \n"
+            help_message += "/exit           - Exit CoPa \n"
 
             self.insert_message(help_message)
-        elif first_word == 'connect':
+        elif first_word == '/connect':
             addr = message.split(' ')[1]
             self._action_callback('connect', {"addr": addr})
         else:
             self.send(message)
 
-    def insert_message(self, message, addr = None):
+    def insert_message(self, message, addr=None):
 
         var = tk.StringVar()
         if addr:
@@ -88,7 +86,7 @@ class Gui:
         label.pack(fill=tk.X, expand=True, side=tk.TOP)
 
     def send(self, message):
-        self.insert_message(message)
+        self.insert_message("(You): " + message)
 
         self._dbg.write(message, self._dbg.DEBUG)
 

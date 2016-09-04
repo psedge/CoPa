@@ -1,7 +1,7 @@
-import socket
 import sys
+from socket import socket, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOL_IP, IP_HDRINCL
 
-from src.imcp import IMCP
+from messaging.imcp import IMCP
 
 
 class SocketHandler:
@@ -11,17 +11,21 @@ class SocketHandler:
         self.callback = callback
         self.dbg = log
 
-        self._socket = socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_ICMP)
-        self._socket.setsockopt(socket.SOL_IP, socket.IP_HDRINCL, 1)
+        self._socket = socket(
+            family=AF_INET,
+            type=SOCK_RAW,
+            proto=IPPROTO_ICMP)
+
+        self._socket.setsockopt(SOL_IP, IP_HDRINCL, 1)
 
     def receive_connection(self):
         while True:
             data, addr = self._socket.recvfrom(1508)
             self.callback(data, addr)
-            self.dbg.write("Packet from %r: %r" % (addr,data))
+            self.dbg.write("Packet from %r: %r" % (addr, data))
 
     def post_connection(self, message, addr):
-        while self.wait_for_confirmation(hash) == False:
+        while self.wait_for_confirmation(hash):
             packet = IMCP()
             packet.message = message
 
