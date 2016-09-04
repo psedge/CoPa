@@ -66,3 +66,8 @@ class Window:
         var.set(message)
 
         label.pack(fill=tk.X, expand=True, side=tk.TOP)
+
+    def clear(self):
+        for widget in self._messages.winfo_children()[1:]:
+            widget.destroy()
+

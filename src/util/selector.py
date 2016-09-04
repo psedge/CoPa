@@ -4,14 +4,15 @@ from util.exceptions import CommandException
 
 
 class Selector:
+    gui = None
     commands = {
         'help': Help,
         'connect': Connect,
         'clear': Clear,
+        'exit': Exit,
     }
-    requires_gui = ('clear',)
 
-    def __init__(self, string, params={}, gui=None):
+    def __init__(self, string, params=[]):
         """
         Convert the string into a Command instance.
 
@@ -28,3 +29,6 @@ class Selector:
 
     def get_output(self):
         return self.command.get_message()
+
+    def execute(self):
+        return self.command.execute()

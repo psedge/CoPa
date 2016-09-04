@@ -19,8 +19,10 @@ class Manager:
             command = Selector(
                 string=command_dict['command'],
                 params=command_dict['args'],
-                gui=self.gui
             )
+            command.command.gui = self.gui
+            command.execute()
+
             return self.put_to_gui(command.get_output())
 
         message = Message(input)

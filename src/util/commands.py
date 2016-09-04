@@ -1,11 +1,17 @@
+import sys
+
 from util.exceptions import CommandException
 
 
 class Command:
+    gui = None
 
-    def __init__(self):
+    def __init__(self, *args):
         if not getattr(self, 'get_message'):
             raise CommandException("Command does not implement a get_message() function.")
+
+        if not getattr(self, 'execute'):
+            raise CommandException("Command does not implement a execute() function.")
 
 
 class Help(Command):
@@ -22,30 +28,41 @@ class Help(Command):
 
         return help_message
 
+    def execute(self):
+        pass
+
 
 class Connect(Command):
 
-    def __init__(self, host):
+    def __init__(self, params):
         super(Connect, self).__init__()
 
-        if len(host) is not 1:
+        if len(params) is not 1:
             raise CommandException("A valid host must be provided.")
 
-        self.host = host
+        self.host = params[0]
 
     def get_message(self):
         return "Connecting to " + self.host
+
+    def execute(self):
+        pass
 
 
 class Clear(Command):
 
-    def __init__(self, host):
-        super(Clear, self).__init__()
+    def get_message(self):
+        return ""
 
-        if len(host) is not 1:
-            raise CommandException("A valid host must be provided.")
+    def execute(self):
+        gui = self.gui
+        gui.clear()
 
-        self.host = host
+
+class Exit(Command):
 
     def get_message(self):
-        return "Connecting to " + self.host
+        return ""
+
+    def execute(self):
+        sys.exit(0)
