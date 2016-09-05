@@ -21,3 +21,9 @@ class TransportException(Exception):
     def __init__(self, message=''):
         super(TransportException, self).__init__(self, message=message)
 
+
+class PackingException(Exception):
+
+    def __init__(self, message=''):
+        super(PackingException, self).__init__(self, message=message)
+

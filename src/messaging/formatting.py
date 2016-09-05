@@ -3,7 +3,7 @@ import struct
 import random
 
 from messaging.transport import Handler, TransportMethod
-from util.exceptions import TransportException
+from util.exceptions import TransportException, PackingException
 
 
 class Message(object):
@@ -40,36 +40,40 @@ class Packer:
     """
     Split the message into a number of packets.
     """
-    def __init__(self, size=64):
-        if not isinstance(size, int):
-            raise Exception('byte length not integeric')
-        self.byte_size = size
 
     @staticmethod
     def pad(data, length):
+        if not isinstance(data, bytearray):
+            raise PackingException('Data provided not instance of a byte array.')
+
         while len(data) < length:
             data.extend(b' ')
         return data
 
-    def split(self, data):
+    @staticmethod
+    def split(data, byte_size=64):
         """
         Should be interesting to see how far we get with this
 
         :param data:
+        :param byte_size:
         :return:
         """
+
+        if not isinstance(byte_size, int):
+            raise Exception('Byte length not integeric')
+
         parts = []
         current_part = bytearray()
 
-        for i in range(0, len(bytes(data.encode())) - 1):
+        for i in range(0, len(data.encode())):
             current_part.extend(data[i].encode())
-            if len(bytes(current_part)) == self.byte_size:
+            if len(bytes(current_part)) == byte_size:
                 parts.append(current_part)
                 current_part = bytearray()
 
-        if len(bytes(current_part)) < self.byte_size:
-            self.pad(current_part, self.byte_size)
-
+        if len(bytes(current_part)) != 0:
+            Packer.pad(current_part, byte_size)
             parts.append(current_part)
 
         return parts
