@@ -7,15 +7,10 @@ class Window:
     _window = None
     _entry = None
     _button = None
-    _callback = None
     _messages = None
+    _q = None
 
-    def __init__(self, callback):
-        if callable(callback):
-            self._callback = callback
-        else:
-            raise GuiException('Callback isn\'t callable.')
-
+    def __init__(self, queue):
         # Open tk window
         self._window = tk.Tk()
         self._window.geometry("600x400+600+400"),
@@ -39,9 +34,13 @@ class Window:
         self._button = tk.Button(self._window, text="Send", command=self._button_click)
         self._button.pack(side=tk.LEFT)
 
+        # Register the queue
+        self._q = queue
+        return
+
+    def __call__(self, *args, **kwargs):
         # Start gooey
         self._window.mainloop()
-        return
 
     def _button_click(self, event=None):
         """
@@ -49,8 +48,11 @@ class Window:
 
         :return:
         """
-        self._callback(self, self._entry.get())
+        input = self._entry.get()
+        self.put(input)
         self._entry.delete(0, tk.END)
+        self._q.put(input)
+
 
     def put(self, message, style=tk.SUNKEN):
         """
