@@ -1,12 +1,14 @@
 from messaging.formatting import Message
 from messaging.transport import IMCP
 from util.selector import Selector
+from multiprocessing import Queue, Process
 
 
 class Manager:
 
-    def __init__(self, gui):
-        self.gui = gui
+    def __init__(self):
+        self.queue = Queue()
+        self.queue.cancel_join_thread()
 
     def process_input(self, input):
         """
@@ -15,28 +17,41 @@ class Manager:
         :param input:
         :return:
         """
-        if self.is_command(input):
-            command_dict = self.split_input_to_command(input)
+
+        print("Starting child process with input: '" + input + "'")
+
+        t1 = Process(target=self.work, args=(input,))
+        t1.start()
+        t1.join()
+
+    def work(self, input):
+        if Command.is_command(input):
+            command_dict = Command.split_input_to_command(input)
             command = Selector(
                 string=command_dict['command'],
                 params=command_dict['args'],
             )
-            command.command.gui = self.gui
             command.execute()
 
-            return self.put_to_gui(command.get_output())
+            return self.queue.put("> " + command.get_output())
 
         message = Message(input)
         if message.send(IMCP):
-            return self.put_to_gui("(You): " + str(message))
+            return self.queue.put("(You): " + str(message))
 
-        return self.put_to_gui("(failed): " + str(message))
+        return self.queue.put("(failed): " + str(message))
 
-    def put_to_gui(self, string):
-        self.gui.put(string)
+
+class Command:
 
     @staticmethod
     def is_command(input):
+        """
+        Determines if the input is intended as a command.
+
+        :param input:
+        :return:
+        """
         first_character = input[0]
         if first_character == '/':
             return True
@@ -44,6 +59,12 @@ class Manager:
 
     @staticmethod
     def split_input_to_command(input):
+        """
+        Converts a command string to a dict.
+
+        :param input:
+        :return:
+        """
         parts = input.lstrip("/").split(" ")
         return {'command': parts.pop(0), 'args': parts}
 

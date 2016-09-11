@@ -17,14 +17,14 @@ class Command:
 class Help(Command):
 
     def get_message(self):
-        help_message = "CoPa - The (Co)py(Pa)ste Messaging Application. \nv0.1\n\n"
+        help_message = "CoPa - The (Co)py(Pa)ste Messaging Application.\n\n"
         help_message += "/help              - Help \n"
-        help_message += "/connect {host} - Connect to a known IP \n"
-        help_message += "/search         - Search the network for hosts \n"
-        help_message += "/clear          - Clear the current panel (doesn't delete log) \n"
+        help_message += "/connect {host}    - Connect to a known IP \n"
+        help_message += "/search            - Search the network for hosts \n"
+        help_message += "/clear             - Clear the current panel (doesn't delete log) \n"
         help_message += "\n"
-        help_message += "/about          - About CoPa \n"
-        help_message += "/exit           - Exit CoPa \n"
+        help_message += "/about             - About CoPa \n"
+        help_message += "/exit              - Exit CoPa \n"
 
         return help_message
 
@@ -55,8 +55,7 @@ class Clear(Command):
         return ""
 
     def execute(self):
-        gui = self.gui
-        gui.clear()
+        pass
 
 
 class Exit(Command):

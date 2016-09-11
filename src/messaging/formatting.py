@@ -18,8 +18,8 @@ class Message(object):
         :param transport_class:
         :return:
         """
-        packer = Packer(size=64)
-        parts = packer.split(str(self))
+        return False
+        parts = Pakcer.split(data=str(self), size=64)
 
         try:
             if not isinstance(transport_class, TransportMethod):
