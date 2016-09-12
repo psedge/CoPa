@@ -3,7 +3,7 @@ from util.exceptions import CommandException
 
 
 class Selector:
-    gui = None
+    running = False
     commands = {
         'help': Help,
         'connect': Connect,
@@ -11,7 +11,7 @@ class Selector:
         'exit': Exit,
     }
 
-    def __init__(self, string, params=[]):
+    def __init__(self, string, params=()):
         """
         Convert the string into a Command instance.
 
@@ -26,8 +26,12 @@ class Selector:
         else:
             self.command = self.commands[string]()
 
+    def start(self):
+        self.running = True
+        self.command.execute()
+
     def get_output(self):
         return self.command.get_message()
 
-    def execute(self):
-        return self.command.execute()
+    def finish(self):
+        self.running = False

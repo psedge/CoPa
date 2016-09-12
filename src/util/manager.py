@@ -25,21 +25,31 @@ class Manager:
         t1.join()
 
     def work(self, input):
+        """
+        Do it.
+
+        :param input:
+        :return:
+        """
         if Command.is_command(input):
+
             command_dict = Command.split_input_to_command(input)
             command = Selector(
                 string=command_dict['command'],
                 params=command_dict['args'],
             )
-            command.execute()
 
-            return self.queue.put("> " + command.get_output())
+            command.start()
+            while command.running:
+                if command.get_output():
+                    self.queue.put("> " + command.get_output())
+            return
 
         message = Message(input)
         if message.send(IMCP):
             return self.queue.put("(You): " + str(message))
 
-        return self.queue.put("(failed): " + str(message))
+        self.queue.put("(failed): " + str(message))
 
 
 class Command:

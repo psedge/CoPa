@@ -4,8 +4,6 @@ from util.exceptions import CommandException
 
 
 class Command:
-    gui = None
-
     def __init__(self, *args):
         if not getattr(self, 'get_message'):
             raise CommandException("Command does not implement a get_message() function.")
