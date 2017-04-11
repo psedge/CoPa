@@ -1,5 +1,6 @@
 from messaging.formatting import Message
 from messaging.transport import IMCP
+from util.exceptions import CommandException
 from util.selector import Selector
 from multiprocessing import Queue, Process
 
@@ -18,11 +19,13 @@ class Manager:
         :return:
         """
 
-        print("Starting child process with input: '" + input + "'")
-
         t1 = Process(target=self.work, args=(input,))
+
+        print("Starting child process with input: '" + input + "'")
+        t1.daemon = False
         t1.start()
         t1.join()
+        print("Process complete, terminating.")
 
     def work(self, input):
         """
@@ -34,19 +37,22 @@ class Manager:
         if Command.is_command(input):
 
             command_dict = Command.split_input_to_command(input)
-            command = Selector(
-                string=command_dict['command'],
-                params=command_dict['args'],
-            )
+            try:
+                command = Selector(
+                    string=command_dict['command'],
+                    params=command_dict['args'],
+                )
 
-            command.start()
-            while command.running:
-                if command.get_output():
-                    self.queue.put("> " + command.get_output())
-            return
+                command.start()
+                while command.running:
+                    if command.get_output():
+                        self.queue.put("> " + command.get_output())
+                        return
+            except CommandException as e:
+                self.queue.put("# Command not recognised")
 
         message = Message(input)
-        if message.send(IMCP):
+        if message.send(IMCP, addr="127.0.0.1"):
             return self.queue.put("(You): " + str(message))
 
         self.queue.put("(failed): " + str(message))

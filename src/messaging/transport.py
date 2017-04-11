@@ -1,7 +1,7 @@
 import random
 import struct
 import sys
-from socket import socket as sock, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOL_IP, IP_HDRINCL, socket
+from socket import socket as sock, AF_INET, SOCK_RAW, IPPROTO_ICMP, SOL_IP, IP_HDRINCL
 
 from util.exceptions import TransportMethodException
 
@@ -19,8 +19,8 @@ class Handler:
 
     def send(self, part, addr):
         packet = self.transport(part)
-        print(packet.make_packet())
-        sys.exit()
+        packet.send(addr)
+        return True
 
 
 class TransportMethod:
@@ -52,18 +52,19 @@ class IMCP(TransportMethod):
 
         self._socket.setsockopt(SOL_IP, IP_HDRINCL, 1)
 
+    def send(self, addr):
+        packet = self.make_packet()
+        print("Sending " + str(packet) + " to " + addr)
+        self._socket.sendto(packet, (addr, 1))
+
     def make_packet(self):
         packet_id = int((id(1) * random.random()) % 65535)
 
         # Header is type (8), code (8), checksum (16), id (16), sequence (16)
-        header = str(struct.pack('bbHHh', self.ICMP_ECHO_REQUEST, 0, 0, packet_id, 1))
-        data = str(self.message)
+        header = struct.pack('bbHHh', self.ICMP_ECHO_REQUEST, 0, 0, packet_id, 1)
+        data = bytes(self.message)
 
-        # Calculate the checksum on the data and the dummy header.
-        my_checksum = self._checksum(header + data)
-        # Now that we have the right checksum, we put that in. It's just easier
-        # to make up a new header than to stuff it into the dummy.
-        header = str(struct.pack('bbHHh', self.ICMP_ECHO_REQUEST, 0, socket.htons(my_checksum), packet_id, 1))
+        header = struct.pack('bbHHh', self.ICMP_ECHO_REQUEST, 0, self._checksum(header + data), packet_id, 1)
 
         return header + data
 
@@ -76,13 +77,13 @@ class IMCP(TransportMethod):
         count = 0
 
         while count < count_to:
-            this_val = ord(source_string[count + 1]) * 256 + ord(source_string[count])
+            this_val = source_string[count + 1] * 256 + source_string[count]
             sum += this_val
             sum &= 0xffffffff  # Necessary?
             count += 2
 
         if count_to < len(source_string):
-            sum += ord(source_string[len(source_string) - 1])
+            sum += source_string[len(source_string) - 1]
             sum = sum & 0xffffffff  # Necessary?
 
         sum = (sum >> 16) + (sum & 0xffff)

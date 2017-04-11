@@ -11,24 +11,23 @@ class Message(object):
     def __init__(self, message, args={}):
         self.raw = message
 
-    def send(self, transport_class):
+    def send(self, transport_class, addr):
         """
         Send the message via the provided transport method.
 
         :param transport_class:
         :return:
         """
-        return False
-        parts = Pakcer.split(data=str(self), size=64)
+        parts = Packer.split(data=str(self), byte_size=64)
 
         try:
-            if not isinstance(transport_class, TransportMethod):
+            if not issubclass(transport_class, TransportMethod):
                 raise TransportException("Transport Class provided is not a child of TransportMethod.")
 
             transport = Handler(transport_class)
 
             for part in parts:
-                transport.send(part)
+                return transport.send(part, addr)
         except TransportException:
             return False
 
